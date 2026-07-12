@@ -2,6 +2,12 @@
 
 Circa is an AI-powered personal schedule builder that ingests sleep data (screenshots or exports), extracts your sleep window and quality, and returns a time-blocked day planned around your biology.
 
+Hackathon overview
+- Goal: rapid MVP demonstrating privacy-first, explainable AI scheduling from real sleep signals.
+- Target users: busy knowledge workers and early-adopter biohackers who want schedules aligned to sleep and circadian rhythm.
+- Demo flow: upload a health-app screenshot → confirm parsed sleep window → generate a personalized, time-blocked day where every block explains why it was placed there.
+- Highlights to show: vision parsing accuracy, confirm screen, schedule explanations, encrypted local store (Greg), and privacy enforcement (no raw screenshots sent to models).
+
 What’s new in this checkpoint
 - Full React client with pages: Scheduler, Routines, Settings, Auth, and Account
 - Robust vision parsing and validation (server/routes/parse.js)
