@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { jsonCompletion } from '../lib/json.js';
+import { normalizeTime } from '../lib/time.js';
+import { normalizeStages } from '../lib/stages.js';
 import { apiError } from '../featherless.js';
 import { VISION_SYSTEM } from '../prompts.js';
 
@@ -7,24 +9,6 @@ const router = Router();
 
 const DATA_URL_RE = /^data:image\/(png|jpeg|jpg|webp);base64,/;
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024; // Featherless vision limit
-
-const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
-
-function normalizeTime(value) {
-  if (value == null) return null;
-  const s = String(value).trim();
-  if (TIME_RE.test(s)) return s;
-  // tolerate "7:05" and "7:05 AM" style output
-  const m = s.match(/^(\d{1,2}):(\d{2})\s*(am|pm)?$/i);
-  if (!m) return null;
-  let h = parseInt(m[1], 10);
-  const min = m[2];
-  const mer = m[3]?.toLowerCase();
-  if (mer === 'pm' && h < 12) h += 12;
-  if (mer === 'am' && h === 12) h = 0;
-  if (h > 23) return null;
-  return `${String(h).padStart(2, '0')}:${min}`;
-}
 
 function validateSleepData(obj) {
   const required = ['source_app', 'bedtime', 'wake_time', 'duration_minutes', 'confidence'];
@@ -42,6 +26,7 @@ function validateSleepData(obj) {
     wake_time: normalizeTime(obj.wake_time),
     duration_minutes: duration,
     sleep_quality: obj.sleep_quality == null ? null : String(obj.sleep_quality),
+    stages: normalizeStages(obj.stages),
     confidence: ['high', 'medium', 'low'].includes(obj.confidence) ? obj.confidence : 'low',
     notes: obj.notes == null ? null : String(obj.notes),
   };
@@ -58,7 +43,14 @@ router.post('/parse', async (req, res, next) => {
       throw apiError('Image is larger than 20MB — please upload a smaller screenshot.', 'IMAGE_TOO_LARGE', 400);
     }
 
+    // Cancel the upstream vision call if the browser disconnects mid-parse.
+    const abort = new AbortController();
+    res.on('close', () => {
+      if (!res.writableEnded) abort.abort();
+    });
+
     const sleep = await jsonCompletion({
+      signal: abort.signal,
       model: process.env.VISION_MODEL || 'google/gemma-3-27b-it',
       temperature: 0.1,
       messages: [

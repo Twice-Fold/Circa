@@ -3,6 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import parseRouter from './routes/parse.js';
 import scheduleRouter from './routes/schedule.js';
+import chatRouter from './routes/chat.js';
+import historyRouter from './routes/history.js';
+import userdataRouter from './routes/userdata.js';
+import debugRouter from './routes/debug.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,6 +25,10 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api', parseRouter);
 app.use('/api', scheduleRouter);
+app.use('/api', chatRouter);
+app.use('/api', historyRouter);
+app.use('/api', userdataRouter);
+app.use('/api', debugRouter);
 
 // Central error handler: every failure reaches the client as { error, code }.
 app.use((err, req, res, next) => {
