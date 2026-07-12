@@ -66,3 +66,101 @@ Privacy by design
 Contributing
 - Run linters/tests if present, follow existing code style
 - New features should include brief README updates where appropriate
+
+Hackathon Plan — Circa
+
+**Track:** Solo Hack | General Track
+**Goal:** AI-powered schedule app that reads your sleep/energy patterns and builds your day around your actual biology.
+
+1. The Pitch (one paragraph)
+
+> "Most schedule apps treat every hour the same. Circa doesn't. Upload a screenshot of your sleep data from any health app — Apple Health, Google Fit, Fitbit, whatever — and Circa's AI reads it, understands your energy patterns, and builds your day around *you*: when to do deep work, when to take a break, even when to grab coffee. Your raw data stays encrypted on a home server I built myself; the key is managed separately in the cloud, so no single breach exposes anything. Only anonymized signals ever reach the AI."
+
+This paragraph is the quick hook for judges — the technical wow (vision parsing + reasoning) plus the trust story (split-key encryption).
+
+2. Core Architecture
+
+```
+[User] --screenshot--> [Web App / Firebase Frontend]
+                              |
+                    vision model parses image
+                    (sleep times, duration, etc.)
+                              |
+                    structured data --> [Greg: home server]
+                    (encrypted at rest)
+                              |
+              decryption key stored separately
+              (Firebase doc or Cloud KMS)
+                              |
+        anonymized signals only --> [Featherless API]
+        (DeepSeek / Kimi / GLM — reasoning model)
+                              |
+                    schedule suggestions --> back to user
+```
+
+Key principle: raw data and the key that unlocks it are never in the same place. Neither half alone is useful.
+
+3. Tech Stack
+
+| Layer | Tool | Why |
+|---|---|---|
+| Frontend | React (Vite) hosted locally / Firebase | Fast to iterate and demo
+| Vision parsing | Featherless vision-capable model | Converts screenshots to structured sleep data
+| Reasoning / suggestions | Featherless (DeepSeek/Kimi/GLM) | Produces human-readable schedules with explanations
+| Data storage | Greg (home server) — encrypted at rest | Keeps raw data under user control
+| Key management | Firebase doc or Cloud KMS (stretch) | Splits key from data for security
+| Hosting/infra | Local dev, optional Docker for server | Simple, reproducible demo
+
+4. Feature Scope
+
+MVP (must have for demo):
+- Upload a screenshot (or export) of sleep data
+- Vision parser extracts bedtime/wake/duration/quality; user confirms
+- Encrypted store (Greg) persists optionally
+- Reasoning model returns a time-blocked schedule with explanations
+- Single-page dashboard that shows the schedule and the privacy explanation
+
+Modes:
+- Circa Flow (MVP backbone): reasoning disabled for speed and reliability
+- Circa Rhythm (stretch): reasoning enabled, deeper chain-of-thought
+
+Stretch ideas (if time permits): multiple schedule modes, session memory, Health Connect OAuth, timeline UI.
+
+Out of scope for the hackathon: native iOS app, calendar sync, production Cloud KMS (unless time), notifications.
+
+5. Weekend Plan (hour-by-hour summary)
+
+Saturday:
+- Morning: Stand up Greg + encrypted storage. Confirm Featherless access and test model outputs.
+- Midday: Build screenshot upload + parsing pipeline; test with sample screenshots.
+- Afternoon: Wire key-split storage; ensure decryption only happens locally or with explicit consent.
+- Evening: Build reasoning prompt and dashboard UI; iterate prompts for clear, actionable schedule items.
+
+Sunday:
+- Morning: Polish UI and reliability; add Circa Rhythm toggle only if Flow is stable.
+- Midday: End-to-end tests with multiple sample screenshots.
+- Afternoon: Rehearse demo script (~3 runs).
+- Before submission: final bug bash and README polish (this file).
+
+6. Demo Script (~3 minutes)
+- Hook (15s): Quick problem statement — "most schedule apps treat hours equally".
+- Live demo (90s): Upload screenshot → show parsing → show generated schedule with explanations.
+- Architecture/trust story (45s): Explain Greg + key split and anonymization.
+- Close (15s): One-line summary and CTA.
+
+7. Security Talking Points (for Q&A)
+- Raw screenshots: encrypted on Greg; not forwarded to 3rd-party models
+- Decryption key: stored separately (Firebase or KMS)
+- AI sees only whitelisted, anonymized signals
+- Production next steps: Cloud KMS, HealthKit/Google Health Connect integration, opt-in encrypted backups
+
+8. Immediate checklist (do these before coding)
+- [ ] Confirm Featherless vision models parse test screenshots successfully
+- [ ] Stand up Greg and confirm encrypted persistence works
+- [ ] Create Firebase project and confirm basic connectivity (key storage)
+- [ ] Gather sample screenshots from Apple Health / Google Fit / Fitbit
+- [ ] Finalize whether Circa Rhythm is a toggle or a separate mode
+
+---
+
+Notes: keep the README short for judges scanning the repo; use this Hackathon Plan section for the deeper narrative they might read if they want more details.
