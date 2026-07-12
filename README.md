@@ -139,28 +139,7 @@ Saturday:
 Sunday:
 - Morning: Polish UI and reliability; add Circa Rhythm toggle only if Flow is stable.
 - Midday: End-to-end tests with multiple sample screenshots.
-- Afternoon: Rehearse demo script (~3 runs).
 - Before submission: final bug bash and README polish (this file).
-
-6. Demo Script (~3 minutes)
-- Hook (15s): Quick problem statement — "most schedule apps treat hours equally".
-- Live demo (90s): Upload screenshot → show parsing → show generated schedule with explanations.
-- Architecture/trust story (45s): Explain Greg + key split and anonymization.
-- Close (15s): One-line summary and CTA.
-
-7. Security Talking Points (for Q&A)
-- Raw screenshots: encrypted on Greg; not forwarded to 3rd-party models
-- Decryption key: stored separately (Firebase or KMS)
-- AI sees only whitelisted, anonymized signals
-- Production next steps: Cloud KMS, HealthKit/Google Health Connect integration, opt-in encrypted backups
-
-8. Immediate checklist (do these before coding)
-- [ ] Confirm Featherless vision models parse test screenshots successfully
-- [ ] Stand up Greg and confirm encrypted persistence works
-- [ ] Create Firebase project and confirm basic connectivity (key storage)
-- [ ] Gather sample screenshots from Apple Health / Google Fit / Fitbit
-- [ ] Finalize whether Circa Rhythm is a toggle or a separate mode
-
 ---
 
 Notes: keep the README short for judges scanning the repo; use this Hackathon Plan section for the deeper narrative they might read if they want more details.
